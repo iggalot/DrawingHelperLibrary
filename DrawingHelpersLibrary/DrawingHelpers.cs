@@ -1,4 +1,6 @@
-﻿using System;
+﻿// TEST
+
+using System;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -223,6 +225,8 @@ namespace DrawingHelpersLibrary
             textBlock.Text = str;
             textBlock.FontSize = size;
             textBlock.Foreground = brush;
+            textBlock.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+            
 
             Canvas.SetLeft(textBlock, xpos);
             Canvas.SetTop(textBlock, ypos);
@@ -350,6 +354,175 @@ namespace DrawingHelpersLibrary
                 DrawLine(c, s_x, s_y, s_x - head_len, s_y - head_len, stroke, thickness);
                 DrawLine(c, s_x, s_y, s_x - head_len, s_y + head_len, stroke, thickness);
             }
+        }
+
+        /// <summary>
+        /// Helper function to draw a horizontal dimension line object above the object
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="dim_leader_height">the height of the dimension leader to draw</param>
+        /// <param name="dim_leader_drop_percent">the percent of the dimension leader height at which the horizontal line is added.</param>
+        /// <param name="dim_leader_gap">the gap distance in y-direction between the dimension leader start point and the object being dimensioned.</param>
+        /// <param name="ins_x">the start x-point of the object being dimensioned</param>
+        /// <param name="ins_y">the start y-point of the object being dimensioned</param>
+        /// <param name="end_x">the end y-point of the object being dimensioned</param>
+        /// <param name="end_y">the end y-point of the object being dimensioned</param>
+        /// <param name="text">the text string to right at the middled of the dimension</param>
+        /// <param name="ltype">linetype style to draw</param>
+        public static void DrawHorizontalDimension_Above(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, Linetypes ltype=Linetypes.LINETYPE_SOLID)
+        {
+            double dim_ldr_ext = 10;
+            double middle_pt_x = 0.5 * (end_x + ins_x);
+            double dim_gap = 100;
+            double y_loc = ins_y - dim_leader_height * (1 + dim_leader_drop_percent);
+
+            double x_gap_start = middle_pt_x - dim_gap / 2.0;
+            double x_gap_end = middle_pt_x + dim_gap / 2.0;
+
+            // Draw midpoint line
+            //DrawingHelpers.DrawLine(c, middle_pt_x, 0, middle_pt_x, 1000, Brushes.Aqua, 1);
+
+            // Left vertical dimension leader.
+            DrawingHelpers.DrawLine(c, ins_x, ins_y - dim_leader_gap, ins_x, y_loc - dim_ldr_ext, Brushes.Green, 1, ltype);
+
+            // Right vertical dimension leader
+            DrawingHelpers.DrawLine(c, end_x, end_y - dim_leader_gap, end_x, y_loc - dim_ldr_ext, Brushes.Green, 1, ltype);
+
+            // Horizontal header line to left of text
+            DrawingHelpers.DrawLine(c, ins_x, y_loc, x_gap_start, y_loc, Brushes.Green, 1, ltype);
+            DrawingHelpers.DrawLine(c, x_gap_end, y_loc, end_x, y_loc, Brushes.Green, 1, ltype);
+
+            // TODO:: How to find the centerpoint?
+            // Draw the text at the approximate middle of the horizontal dimension line
+            DrawingHelpers.DrawText(c, middle_pt_x - 15, y_loc-10, 0, text, Brushes.Green, 15);
+        }
+
+        /// <summary>
+        /// Helper function to draw a horizontal dimension line object below the object
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="dim_leader_height">the height of the dimension leader to draw</param>
+        /// <param name="dim_leader_drop_percent">the percent of the dimension leader height at which the horizontal line is added.</param>
+        /// <param name="dim_leader_gap">the gap distance in y-direction between the dimension leader start point and the object being dimensioned.</param>
+        /// <param name="ins_x">the start x-point of the object being dimensioned</param>
+        /// <param name="ins_y">the start y-point of the object being dimensioned</param>
+        /// <param name="end_x">the end y-point of the object being dimensioned</param>
+        /// <param name="end_y">the end y-point of the object being dimensioned</param>
+        /// <param name="text">the text string to right at the middled of the dimension</param>
+        /// <param name="ltype">linetype style to draw</param>
+        public static void DrawHorizontalDimension_Below(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            double dim_ldr_ext = 10;
+            double middle_pt_x = 0.5 * (end_x + ins_x);
+            double dim_gap = 100;
+            double y_loc = ins_y + dim_leader_height * (1 + dim_leader_drop_percent);
+
+            double x_gap_start = middle_pt_x - dim_gap / 2.0;
+            double x_gap_end = middle_pt_x + dim_gap / 2.0;
+
+
+            // Draw midpoint line
+            //DrawingHelpers.DrawLine(c, middle_pt_x, 0, middle_pt_x, 1000, Brushes.Aqua, 1);
+
+            // Left vertical dimension leader.
+            DrawingHelpers.DrawLine(c, ins_x, ins_y + dim_leader_gap, ins_x, y_loc + dim_ldr_ext, Brushes.Green, 1, ltype);
+
+            // Right vertical dimension leader
+            DrawingHelpers.DrawLine(c, end_x, end_y + dim_leader_gap, end_x, y_loc + dim_ldr_ext, Brushes.Green, 1, ltype);
+
+            // Horizontal header line to left of text
+            DrawingHelpers.DrawLine(c, ins_x, y_loc, x_gap_start, y_loc, Brushes.Green, 1, ltype);
+            DrawingHelpers.DrawLine(c, x_gap_end, y_loc, end_x, y_loc, Brushes.Green, 1, ltype);
+
+            // TODO:: How to find the centerpoint?
+            // Draw the text at the approximate middle of the horizontal dimension line
+            DrawingHelpers.DrawText(c, middle_pt_x -15, y_loc - 10, 0, text, Brushes.Green, 15);
+        }
+
+        /// <summary>
+        /// Helper function to draw a vertical dimension line object to the left of the object
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="dim_leader_height">the height of the dimension leader to draw</param>
+        /// <param name="dim_leader_drop_percent">the percent of the dimension leader height at which the horizontal line is added.</param>
+        /// <param name="dim_leader_gap">the gap distance in x-direction between the dimension leader start point and the object being dimensioned.</param>
+        /// <param name="ins_x">the start x-point of the object being dimensioned</param>
+        /// <param name="ins_y">the start y-point of the object being dimensioned</param>
+        /// <param name="end_x">the end y-point of the object being dimensioned</param>
+        /// <param name="end_y">the end y-point of the object being dimensioned</param>
+        /// <param name="text">the text string to right at the middled of the dimension</param>
+        /// <param name="ltype">linetype style to draw</param>
+        public static void DrawVerticalDimension_Left(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            double dim_ldr_ext = 10;
+            double dim_gap = 50;
+
+            double middle_pt_y = 0.5 * (end_y + ins_y);
+            double x_loc_ins = ins_x - dim_leader_height * (1 + dim_leader_drop_percent);
+            double x_loc_end = end_x - dim_leader_height * (1 + dim_leader_drop_percent);
+
+            double y_gap_start = middle_pt_y - dim_gap / 2.0;
+            double y_gap_end = middle_pt_y +   dim_gap / 2.0;
+
+            // Draw midpoint line
+            DrawingHelpers.DrawLine(c, 0, middle_pt_y, 1000, middle_pt_y, Brushes.Aqua, 1);
+
+            // Left top horizontal dimension leader.
+            DrawingHelpers.DrawLine(c, ins_x - dim_leader_gap, ins_y, x_loc_ins - dim_ldr_ext, ins_y, Brushes.Green, 1, ltype);
+
+            // Right bottom horizontal dimension leader
+            DrawingHelpers.DrawLine(c, end_x - dim_leader_gap, end_y, x_loc_end - dim_ldr_ext, end_y, Brushes.Green, 1, ltype);
+
+            // Horizontal header line to left of text
+            DrawingHelpers.DrawLine(c, x_loc_ins, ins_y, x_loc_end, y_gap_start, Brushes.Green, 1, ltype);
+            DrawingHelpers.DrawLine(c, x_loc_ins, y_gap_end, x_loc_end, end_y, Brushes.Green, 1, ltype);
+
+            // TODO:: How to find the centerpoint?
+            // Draw the text at the approximate middle of the horizontal dimension line
+            DrawingHelpers.DrawText(c, x_loc_ins - 15, middle_pt_y - 20, 0, text, Brushes.Green, 15);
+        }
+
+        /// <summary>
+        /// Helper function to draw a vertical dimension line object to the right of the object
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="dim_leader_height">the height of the dimension leader to draw</param>
+        /// <param name="dim_leader_drop_percent">the percent of the dimension leader height at which the horizontal line is added.</param>
+        /// <param name="dim_leader_gap">the gap distance in x-direction between the dimension leader start point and the object being dimensioned.</param>
+        /// <param name="ins_x">the start x-point of the object being dimensioned</param>
+        /// <param name="ins_y">the start y-point of the object being dimensioned</param>
+        /// <param name="end_x">the end y-point of the object being dimensioned</param>
+        /// <param name="end_y">the end y-point of the object being dimensioned</param>
+        /// <param name="text">the text string to right at the middled of the dimension</param>
+        /// <param name="ltype">linetype style to draw</param>
+        public static void DrawVerticalDimension_Right(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            double dim_ldr_ext = 10;
+            double dim_gap = 50;
+
+            double middle_pt_y = 0.5 * (end_y + ins_y);
+            double x_loc_ins = ins_x + dim_leader_height * (1 + dim_leader_drop_percent);
+            double x_loc_end = end_x + dim_leader_height * (1 + dim_leader_drop_percent);
+
+            double y_gap_start = middle_pt_y - dim_gap / 2.0;
+            double y_gap_end = middle_pt_y + dim_gap / 2.0;
+
+            // Draw midpoint line
+            DrawingHelpers.DrawLine(c, 0, middle_pt_y, 1000, middle_pt_y, Brushes.Aqua, 1);
+
+            // Left top horizontal dimension leader.
+            DrawingHelpers.DrawLine(c, ins_x + dim_leader_gap, ins_y, x_loc_ins + dim_ldr_ext, ins_y, Brushes.Green, 1, ltype);
+
+            // Right bottom horizontal dimension leader
+            DrawingHelpers.DrawLine(c, end_x + dim_leader_gap, end_y, x_loc_end + dim_ldr_ext, end_y, Brushes.Green, 1, ltype);
+
+            // Horizontal header line to left of text
+            DrawingHelpers.DrawLine(c, x_loc_ins, ins_y, x_loc_end, y_gap_start, Brushes.Green, 1, ltype);
+            DrawingHelpers.DrawLine(c, x_loc_ins, y_gap_end, x_loc_end, end_y, Brushes.Green, 1, ltype);
+
+            // TODO:: How to find the centerpoint?
+            // Draw the text at the approximate middle of the horizontal dimension line
+            DrawingHelpers.DrawText(c, x_loc_ins - 15, middle_pt_y - 20, 0, text, Brushes.Green, 15);
         }
     }
 }
