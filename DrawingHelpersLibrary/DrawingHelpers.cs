@@ -107,7 +107,7 @@ namespace DrawingHelpersLibrary
             return myEllipse;
         }
 
-        public static Shape DrawCircleHollow(Canvas c, double x, double y, Brush stroke, double diameter, double thickness=1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        public static Shape DrawCircleHollow(Canvas c, double x, double y, Brush stroke, double diameter, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
         {
             return DrawCircle(c, x, y, Brushes.Transparent, stroke, diameter, thickness, ltype);
         }
@@ -122,7 +122,7 @@ namespace DrawingHelpersLibrary
         /// <param name="sy">start point y-coord</param>
         /// <param name="stroke">color of the line object as a <see cref="Brush"/></param>
         /// <returns>the Shape object</returns>
-        public static Shape DrawLine(Canvas c, double sx, double sy, double ex, double ey, Brush stroke, double thickness=1.0, Linetypes ltype=Linetypes.LINETYPE_SOLID)
+        public static Shape DrawLine(Canvas c, double sx, double sy, double ex, double ey, Brush stroke, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
         {
             Line myLine = new Line();
             myLine.Stroke = stroke;
@@ -152,7 +152,7 @@ namespace DrawingHelpersLibrary
         /// <param name="end_angle">angle from center to the end of the arc (clockwise positive)/param>
         /// <param name="start_angle">angle from center to the start of the arc (clockwise positive)/param>
         /// <param name="head_len">length of the arrow head in pixels</param>
-        public static void DrawCircularArc(Canvas c, double x, double y, Brush fill, Brush stroke, double thickness, double radius, double start_angle, double end_angle, SweepDirection sweep=SweepDirection.Counterclockwise)
+        public static void DrawCircularArc(Canvas c, double x, double y, Brush fill, Brush stroke, double thickness, double radius, double start_angle, double end_angle, SweepDirection sweep = SweepDirection.Counterclockwise)
         {
             double sa, ea;
 
@@ -166,7 +166,7 @@ namespace DrawingHelpersLibrary
             sa = ((start_angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
             ea = ((end_angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 
-            if(ea < sa)
+            if (ea < sa)
             {
                 double temp_angle = ea;
                 ea = sa;
@@ -177,7 +177,7 @@ namespace DrawingHelpersLibrary
 
             PathGeometry pg = new PathGeometry();
             PathFigure pf = new PathFigure();
-            
+
             ArcSegment arcSegment = new ArcSegment();
             arcSegment.IsLargeArc = angle_diff >= Math.PI;
 
@@ -190,7 +190,7 @@ namespace DrawingHelpersLibrary
             // Set the end point of the arc
             arcSegment.Point = new System.Windows.Point(x - radius * Math.Cos(ea), y - radius * Math.Sin(ea));
 
-            arcSegment.Size = new System.Windows.Size(0.8*radius, radius);
+            arcSegment.Size = new System.Windows.Size(0.8 * radius, radius);
             arcSegment.SweepDirection = sweep;
 
             pf.Segments.Add(arcSegment);
@@ -226,7 +226,7 @@ namespace DrawingHelpersLibrary
             textBlock.FontSize = size;
             textBlock.Foreground = brush;
             textBlock.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-            
+
 
             Canvas.SetLeft(textBlock, xpos);
             Canvas.SetTop(textBlock, ypos);
@@ -246,9 +246,9 @@ namespace DrawingHelpersLibrary
         /// <param name="thickness">stroke thickness of the arrow</param>
         /// <param name="shaft_len">length of the arrow shaft in pixels</param>
         /// <param name="head_len">length of the arrow head in pixels</param>
-        public static void DrawArrow(Canvas c, double x, double y, Brush fill, Brush stroke, ArrowDirections dir, double thickness, double shaft_len=DEFAULT_ARROW_SHAFTLENGTH, double head_len = DEFAULT_ARROW_HEADLENGTH)
+        public static void DrawArrow(Canvas c, double x, double y, Brush fill, Brush stroke, ArrowDirections dir, double thickness, double shaft_len = DEFAULT_ARROW_SHAFTLENGTH, double head_len = DEFAULT_ARROW_HEADLENGTH)
         {
-            switch (dir)    
+            switch (dir)
             {
                 case ArrowDirections.ARROW_DOWN:
                     DrawArrowDown(c, x, y, fill, stroke, thickness, shaft_len, head_len);
@@ -313,9 +313,9 @@ namespace DrawingHelpersLibrary
         /// <param name="end_angle">angle from center to the end of the arc (clockwise positive)/param>
         /// <param name="start_angle"/>angle from center to the start of the arc (clockwise positive)/param>
         /// <param name="head_len">length of the arrow head in pixels</param>
-        public static void DrawCircularArrow(Canvas c, double x, double y, Brush fill, Brush stroke, 
-            ArrowDirections dir, double thickness = DEFAULT_ARROW_THICKNESS, 
-            double radius = 32.0, double start_angle = Math.PI / 2.0, double end_angle = (-1) * Math.PI / 2.0, 
+        public static void DrawCircularArrow(Canvas c, double x, double y, Brush fill, Brush stroke,
+            ArrowDirections dir, double thickness = DEFAULT_ARROW_THICKNESS,
+            double radius = 32.0, double start_angle = Math.PI / 2.0, double end_angle = (-1) * Math.PI / 2.0,
             double head_len = DEFAULT_ARROW_HEADLENGTH)
         {
             double s_x, s_y;
@@ -334,7 +334,7 @@ namespace DrawingHelpersLibrary
             }
 
             // Draw the circular arc
-            DrawingHelpers.DrawCircularArc(c, x, y, fill, stroke, thickness,radius,sa, ea);
+            DrawingHelpers.DrawCircularArc(c, x, y, fill, stroke, thickness, radius, sa, ea);
 
             // Draw the arrow head
             s_x = x - radius * Math.Cos(sa);
@@ -342,7 +342,7 @@ namespace DrawingHelpersLibrary
             e_x = x - radius * Math.Cos(ea);
             e_y = y - radius * Math.Sin(ea);
 
-            if(dir == ArrowDirections.ARROW_COUNTERCLOCKWISE)
+            if (dir == ArrowDirections.ARROW_COUNTERCLOCKWISE)
             {
                 // use the endpoint to draw the head
                 DrawLine(c, e_x, e_y, e_x - head_len, e_y - head_len, stroke, thickness);
@@ -369,7 +369,7 @@ namespace DrawingHelpersLibrary
         /// <param name="end_y">the end y-point of the object being dimensioned</param>
         /// <param name="text">the text string to right at the middled of the dimension</param>
         /// <param name="ltype">linetype style to draw</param>
-        public static void DrawHorizontalDimension_Above(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, Linetypes ltype=Linetypes.LINETYPE_SOLID)
+        public static void DrawHorizontalDimension_Above(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, Linetypes ltype = Linetypes.LINETYPE_SOLID)
         {
             double dim_ldr_ext = 10;
             double middle_pt_x = 0.5 * (end_x + ins_x);
@@ -394,7 +394,7 @@ namespace DrawingHelpersLibrary
 
             // TODO:: How to find the centerpoint?
             // Draw the text at the approximate middle of the horizontal dimension line
-            DrawingHelpers.DrawText(c, middle_pt_x - 15, y_loc-10, 0, text, Brushes.Green, 15);
+            DrawingHelpers.DrawText(c, middle_pt_x - 15, y_loc - 10, 0, text, Brushes.Green, 15);
         }
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace DrawingHelpersLibrary
 
             // TODO:: How to find the centerpoint?
             // Draw the text at the approximate middle of the horizontal dimension line
-            DrawingHelpers.DrawText(c, middle_pt_x -15, y_loc - 10, 0, text, Brushes.Green, 15);
+            DrawingHelpers.DrawText(c, middle_pt_x - 15, y_loc - 10, 0, text, Brushes.Green, 15);
         }
 
         /// <summary>
@@ -462,10 +462,10 @@ namespace DrawingHelpersLibrary
             double x_loc_end = end_x - dim_leader_height * (1 + dim_leader_drop_percent);
 
             double y_gap_start = middle_pt_y - dim_gap / 2.0;
-            double y_gap_end = middle_pt_y +   dim_gap / 2.0;
+            double y_gap_end = middle_pt_y + dim_gap / 2.0;
 
             // Draw midpoint line
-            DrawingHelpers.DrawLine(c, 0, middle_pt_y, 1000, middle_pt_y, Brushes.Aqua, 1);
+            //DrawingHelpers.DrawLine(c, 0, middle_pt_y, 1000, middle_pt_y, Brushes.Aqua, 1);
 
             // Left top horizontal dimension leader.
             DrawingHelpers.DrawLine(c, ins_x - dim_leader_gap, ins_y, x_loc_ins - dim_ldr_ext, ins_y, Brushes.Green, 1, ltype);
@@ -508,7 +508,7 @@ namespace DrawingHelpersLibrary
             double y_gap_end = middle_pt_y + dim_gap / 2.0;
 
             // Draw midpoint line
-            DrawingHelpers.DrawLine(c, 0, middle_pt_y, 1000, middle_pt_y, Brushes.Aqua, 1);
+            //DrawingHelpers.DrawLine(c, 0, middle_pt_y, 1000, middle_pt_y, Brushes.Aqua, 1);
 
             // Left top horizontal dimension leader.
             DrawingHelpers.DrawLine(c, ins_x + dim_leader_gap, ins_y, x_loc_ins + dim_ldr_ext, ins_y, Brushes.Green, 1, ltype);
@@ -523,6 +523,56 @@ namespace DrawingHelpersLibrary
             // TODO:: How to find the centerpoint?
             // Draw the text at the approximate middle of the horizontal dimension line
             DrawingHelpers.DrawText(c, x_loc_ins - 15, middle_pt_y - 20, 0, text, Brushes.Green, 15);
+        }
+
+        /// <summary>
+        /// Draws a 4-point closed polyline
+        /// </summary>
+        /// <param name="c">the canvas</param>
+        /// <param name="x1">point 1 x</param>
+        /// <param name="y1">point 1 y</param>
+        /// <param name="x2">point 2 x</param>
+        /// <param name="y2">point 2 y</param>
+        /// <param name="x3">point 3 x</param>
+        /// <param name="y3">point 3 y</param>
+        /// <param name="x4">point 4 x</param>
+        /// <param name="y4">point 4 y</param>
+        /// <param name="stroke">color of the line</param>
+        /// <param name="thickness">thickness of the line</param>
+        /// <param name="ltype">linetype <see cref="Linetypes"/></param>
+        public static void DrawPoly_4Pt(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4, Brush stroke, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            DrawingHelpers.DrawLine(c, x1, y1, x2, y2, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x4, y4, x1, y1, stroke, thickness, ltype);
+        }
+
+        /// <summary>
+        /// Draws a rectangle object pf specified height and width
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="x_ins">x insert coord (bottom left)</param>
+        /// <param name="y_ins">y insert coord (bottom left)</param>
+        /// <param name="width">width of the rectangle</param>
+        /// <param name="height">height of the rectangle</param>
+        /// <param name="stroke">color of the line</param>
+        /// <param name="thickness">thickness of the rectangle</param>
+        /// <param name="ltype">linetype of the line</param>
+        public static void DrawRectangle(Canvas c, double x_ins, double y_ins, double width, double height, Brush stroke, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            double x1 = x_ins;
+            double y1 = y_ins;
+            double x2 = x_ins + width;
+            double y2 = y_ins;
+            double x3 = x_ins + width;
+            double y3 = y_ins + height;
+            double x4 = x_ins;
+            double y4 = y_ins + height;
+            DrawingHelpers.DrawLine(c, x1, y1, x2, y2, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x4, y4, x1, y1, stroke, thickness, ltype);
         }
     }
 }
