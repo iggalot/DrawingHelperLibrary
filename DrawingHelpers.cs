@@ -549,6 +549,126 @@ namespace DrawingHelpersLibrary
         }
 
         /// <summary>
+        /// Helper function to draw a vertical dimension line object to the right of the object
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="dim_leader_height">the height of the dimension leader to draw</param>
+        /// <param name="dim_leader_drop_percent">the percent of the dimension leader height at which the horizontal line is added.</param>
+        /// <param name="dim_leader_gap">the gap distance in x-direction between the dimension leader start point and the object being dimensioned.</param>
+        /// <param name="ins_x">the start x-point of the object being dimensioned</param>
+        /// <param name="ins_y">the start y-point of the object being dimensioned</param>
+        /// <param name="end_x">the end y-point of the object being dimensioned</param>
+        /// <param name="end_y">the end y-point of the object being dimensioned</param>
+        /// <param name="text">the text string to right at the middled of the dimension</param>
+        /// <param name="text_ht">text height of the dimension object</param>
+        /// <param name="ltype">linetype style to draw</param>
+        public static void DrawDimensionAligned(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, double text_ht=15, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            // standardize the points so point 1 is always left of point 2
+            double temp_x, temp_y;
+            if (ins_x > end_x)
+            {
+                temp_x = ins_x;
+                temp_y = ins_y;
+                ins_x = end_x;
+                ins_y = end_y;
+                end_x = temp_x;
+                end_y = temp_y;
+            }
+            // else if its a vertical dimension, make the bottom most point to be point 1
+            else if (ins_x == end_x)
+            {
+                if (ins_y > end_y)
+                {
+                    temp_x = ins_x;
+                    temp_y = ins_y;
+                    ins_x = end_x;
+                    ins_y = end_y;
+                    end_x = temp_x;
+                    end_y = temp_y;
+                }
+            }
+
+            // determine the dimension parameters
+            double angle = Math.Atan((end_y - ins_y) / (end_x - ins_x));
+            double text_gap = 0.5 * text_ht;
+            double dim_ldr_ext = 0.67 * text_ht;
+            double dim_gap = 3.33 * text_ht;
+
+            //// Display the dimleader #'s (FOR DEBUGGING)
+            //DrawingHelpers.DrawText(c, ins_x, ins_y, 0, "1", Brushes.Black, text_ht);
+            //DrawingHelpers.DrawText(c, end_x, end_y, 0, "2", Brushes.Black, text_ht);
+
+            // the first dim leader line
+            double x_dimleader1_ins = ins_x + dim_leader_gap * Math.Sin(angle);
+            double y_dimleader1_ins = ins_y - dim_leader_gap * Math.Cos(angle);
+            double x_dimleader1_end = ins_x + (dim_leader_height + dim_ldr_ext) * Math.Sin(angle);
+            double y_dimleader1_end = ins_y - (dim_leader_height + dim_ldr_ext) * Math.Cos(angle);
+
+            // the second dim leader
+            double x_dimleader2_ins = end_x + dim_leader_gap * Math.Sin(angle);
+            double y_dimleader2_ins = end_y - dim_leader_gap * Math.Cos(angle);
+            double x_dimleader2_end = end_x + (dim_leader_height + dim_ldr_ext) * Math.Sin(angle);
+            double y_dimleader2_end = end_y - (dim_leader_height + dim_ldr_ext) * Math.Cos(angle);
+
+            // the text break line
+            double x_dimtext1_ins = ins_x + dim_leader_height * Math.Sin(angle);
+            double y_dimtext1_ins = ins_y - dim_leader_height * Math.Cos(angle);
+            double x_dimtext1_end = end_x + (dim_leader_height) * Math.Sin(angle);
+            double y_dimtext1_end = end_y - (dim_leader_height) * Math.Cos(angle);
+
+            double middle_pt_x = 0.5 * (x_dimtext1_ins + x_dimtext1_end);
+            double middle_pt_y = 0.5 * (y_dimtext1_ins + y_dimtext1_end);
+
+            // if the dimension is down and to right (or up and to left), shift the text position
+            double text_pt_x = middle_pt_x + text_gap * Math.Sin(angle);
+            double text_pt_y = (angle < 0) ? middle_pt_y + (text_gap) * Math.Cos(angle) : middle_pt_y - text_ht * 0.5 - (text_gap) * Math.Cos(angle);
+
+            // Dimension leader 1.
+            DrawingHelpers.DrawLine(c, x_dimleader1_ins, y_dimleader1_ins, x_dimleader1_end, y_dimleader1_end, Brushes.Green, 1, ltype);
+
+            // Dimension leader 2.
+            DrawingHelpers.DrawLine(c, x_dimleader2_ins, y_dimleader2_ins, x_dimleader2_end, y_dimleader2_end, Brushes.Green, 1, ltype);
+
+            // Dimension text line.
+            DrawingHelpers.DrawLine(c, x_dimtext1_ins, y_dimtext1_ins, x_dimtext1_end, y_dimtext1_end, Brushes.Green, 1, ltype);
+
+            DrawingHelpers.DrawText(c, text_pt_x, text_pt_y, 0, angle.ToString(), Brushes.Green, text_ht);
+        }
+
+        /// <summary>
+        /// Several test cases for display of aligned dimensions.
+        /// </summary>
+        /// <param name="canvas"></param>
+        public static void AlignedDimensionTests(Canvas canvas)
+        {
+            double x1 = 100;
+            double y1 = 100;
+            double x2 = 200;
+            double y2 = 50;
+            DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Black, 1, Linetypes.LINETYPE_DASHED);
+            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1, y1, x2, y2, "TEST", 10);
+
+            DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Red, 1, Linetypes.LINETYPE_DASHED);
+            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x2 + 200, y2, x1 + 200, y1, "TEST", 10);
+
+            DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Blue, 1, Linetypes.LINETYPE_DASHED);
+            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1, y1 + 100, x2, y2 + 300, "TEST", 10);
+
+            DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Green, 1, Linetypes.LINETYPE_DASHED);
+            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x2 + 200, y2 + 300, x1 + 200, y1 + 100, "TEST", 10);
+
+            // Vertical points
+            DrawingHelpers.DrawLine(canvas, x1 + 400, y1, x1 + 400, y2, Brushes.Green, 1, Linetypes.LINETYPE_DASHED);
+            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1 + 400, y1, x1 + 400, y2, "TEST", 10);
+
+            // Vertical points
+            DrawingHelpers.DrawLine(canvas, x1 + 400, y1, x1 + 400, y2, Brushes.Green, 1, Linetypes.LINETYPE_DASHED);
+            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1 + 600, y2, x1 + 600, y1, "TEST", 10);
+        }
+
+
+        /// <summary>
         /// Draws a rectangle object pf specified height and width
         /// </summary>
         /// <param name="c"></param>
