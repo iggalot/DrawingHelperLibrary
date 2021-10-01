@@ -697,7 +697,6 @@ namespace DrawingHelpersLibrary
             DrawingHelpers.DrawDimensionAligned(canvas, x1 + 600, y2, x1 + 600, y1, "TEST", 15);
         }
 
-
         /// <summary>
         /// Draws a rectangle object pf specified height and width
         /// </summary>
@@ -719,6 +718,64 @@ namespace DrawingHelpersLibrary
             double y3 = y_ins + height;
             double x4 = x_ins;
             double y4 = y_ins + height;
+            DrawingHelpers.DrawLine(c, x1, y1, x2, y2, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x4, y4, x1, y1, stroke, thickness, ltype);
+        }
+
+        /// <summary>
+        /// Draws a rectangle object pf specified height based on the input of the two points on the base of the rectangle
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="x_ins">x insert coord (bottom left)</param>
+        /// <param name="y_ins">y insert coord (bottom left)</param>
+        /// <param name="width">width of the rectangle</param>
+        /// <param name="height">height of the rectangle</param>
+        /// <param name="stroke">color of the line</param>
+        /// <param name="thickness">thickness of the rectangle</param>
+        /// <param name="ltype">linetype of the line</param>
+        public static void DrawRectangleAligned_Base(Canvas c, double ins_x, double ins_y, double end_x, double end_y, double ht, Brush stroke, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            // If the points are the same, no need to draw a dimension
+            if ((ins_x == end_x) && (ins_y == end_y))
+                return;
+
+            // standardize the points so point 1 is always left of point 2
+            double temp_x, temp_y;
+            if (ins_x > end_x)
+            {
+                temp_x = ins_x;
+                temp_y = ins_y;
+                ins_x = end_x;
+                ins_y = end_y;
+                end_x = temp_x;
+                end_y = temp_y;
+            }
+            // else if its a vertical dimension, make the bottom most point to be point 1
+            else if (ins_x == end_x)
+            {
+                if (ins_y > end_y)
+                {
+                    temp_x = ins_x;
+                    temp_y = ins_y;
+                    ins_x = end_x;
+                    ins_y = end_y;
+                    end_x = temp_x;
+                    end_y = temp_y;
+                }
+            }
+
+            double angle = Math.Atan((end_y - ins_y) / (end_x - ins_x));
+
+            double x1 = ins_x;
+            double y1 = ins_y;
+            double x2 = end_x;
+            double y2 = end_y;
+            double x3 = x2 + ht * Math.Cos(angle);
+            double y3 = y2 - ht * Math.Sin(angle);
+            double x4 = x1 + ht * Math.Cos(angle); ;
+            double y4 = y1 - ht * Math.Sin(angle);
             DrawingHelpers.DrawLine(c, x1, y1, x2, y2, stroke, thickness, ltype);
             DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
             DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
