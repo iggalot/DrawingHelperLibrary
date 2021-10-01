@@ -56,6 +56,14 @@ namespace DrawingHelpersLibrary
         public const double DEFAULT_ARROW_THICKNESS = 3;       // line thickness of arrow components
         public const double DEFAULT_TEXT_HEIGHT = 12.0;        // text height (in pixels)
 
+        public const double DEFAULT_DIM_TEXT_HT = 15;
+        public const double DEFAULT_DIM_LEADER_HEIGHT = 30;
+        public const double DEFAULT_DIM_LEADER_DROP_PERCENT = 0.3;
+        public const double DEFAULT_DIM_LEADER_GAP = 5;
+        public const double DEFAULT_DIM_LEADER_EXT = 10;
+        public static Brush DEFAULT_DIM_LEADER_COLOR = Brushes.Green;
+        public static Linetypes DEFAULT_DIM_LINETYPE = Linetypes.LINETYPE_SOLID;
+
         private static DoubleCollection GetStrokeDashArray(Linetypes ltype)
         {
             switch (ltype)
@@ -549,7 +557,25 @@ namespace DrawingHelpersLibrary
         }
 
         /// <summary>
-        /// Helper function to draw a vertical dimension line object to the right of the object
+        /// Draws a default aligned dimension with standard values
+        /// </summary>
+        /// <param name="c">cnavas object</param>
+        /// <param name="ins_x">1st point x-coord</param>
+        /// <param name="ins_y">1st point y-coord</param>
+        /// <param name="end_x">2nd point x-coord</param>
+        /// <param name="end_y">2nd point y-coord</param>
+        /// <param name="text">text to display on the dimension</param>
+        /// <param name="text_height"> height of the text</param>
+        public static void DrawDimensionAligned(Canvas c, double ins_x, double ins_y, double end_x, double end_y, string text, double text_height)
+        {
+            DrawDimensionAligned(c, ins_x, ins_y, end_x, end_y, text, text_height, 
+                DEFAULT_DIM_LEADER_HEIGHT, DEFAULT_DIM_LEADER_DROP_PERCENT, DEFAULT_DIM_LEADER_GAP, DEFAULT_DIM_LEADER_EXT, 
+                DEFAULT_DIM_LEADER_COLOR, DEFAULT_DIM_LINETYPE);
+        }
+
+
+        /// <summary>
+        /// Generic function to draw a vertical dimension line object to the right of the object
         /// </summary>
         /// <param name="c"></param>
         /// <param name="dim_leader_height">the height of the dimension leader to draw</param>
@@ -562,8 +588,14 @@ namespace DrawingHelpersLibrary
         /// <param name="text">the text string to right at the middled of the dimension</param>
         /// <param name="text_ht">text height of the dimension object</param>
         /// <param name="ltype">linetype style to draw</param>
-        public static void DrawDimensionAligned(Canvas c, double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double ins_x, double ins_y, double end_x, double end_y, string text, double text_ht=15, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        public static void DrawDimensionAligned(Canvas c, double ins_x, double ins_y, double end_x, double end_y, string text, double text_ht, 
+            double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double dim_leader_ext, 
+            Brush color, Linetypes ltype)
         {
+            // If the points are the same, no need to draw a dimension
+            if ((ins_x == end_x) && (ins_y == end_y))
+                return;
+
             // standardize the points so point 1 is always left of point 2
             double temp_x, temp_y;
             if (ins_x > end_x)
@@ -592,8 +624,6 @@ namespace DrawingHelpersLibrary
             // determine the dimension parameters
             double angle = Math.Atan((end_y - ins_y) / (end_x - ins_x));
             double text_gap = 0.5 * text_ht;
-            double dim_ldr_ext = 0.67 * text_ht;
-            double dim_gap = 3.33 * text_ht;
 
             //// Display the dimleader #'s (FOR DEBUGGING)
             //DrawingHelpers.DrawText(c, ins_x, ins_y, 0, "1", Brushes.Black, text_ht);
@@ -602,14 +632,14 @@ namespace DrawingHelpersLibrary
             // the first dim leader line
             double x_dimleader1_ins = ins_x + dim_leader_gap * Math.Sin(angle);
             double y_dimleader1_ins = ins_y - dim_leader_gap * Math.Cos(angle);
-            double x_dimleader1_end = ins_x + (dim_leader_height + dim_ldr_ext) * Math.Sin(angle);
-            double y_dimleader1_end = ins_y - (dim_leader_height + dim_ldr_ext) * Math.Cos(angle);
+            double x_dimleader1_end = ins_x + (dim_leader_height + dim_leader_ext) * Math.Sin(angle);
+            double y_dimleader1_end = ins_y - (dim_leader_height + dim_leader_ext) * Math.Cos(angle);
 
             // the second dim leader
             double x_dimleader2_ins = end_x + dim_leader_gap * Math.Sin(angle);
             double y_dimleader2_ins = end_y - dim_leader_gap * Math.Cos(angle);
-            double x_dimleader2_end = end_x + (dim_leader_height + dim_ldr_ext) * Math.Sin(angle);
-            double y_dimleader2_end = end_y - (dim_leader_height + dim_ldr_ext) * Math.Cos(angle);
+            double x_dimleader2_end = end_x + (dim_leader_height + dim_leader_ext) * Math.Sin(angle);
+            double y_dimleader2_end = end_y - (dim_leader_height + dim_leader_ext) * Math.Cos(angle);
 
             // the text break line
             double x_dimtext1_ins = ins_x + dim_leader_height * Math.Sin(angle);
@@ -622,7 +652,7 @@ namespace DrawingHelpersLibrary
 
             // if the dimension is down and to right (or up and to left), shift the text position
             double text_pt_x = middle_pt_x + text_gap * Math.Sin(angle);
-            double text_pt_y = (angle < 0) ? middle_pt_y + (text_gap) * Math.Cos(angle) : middle_pt_y - text_ht * 0.5 - (text_gap) * Math.Cos(angle);
+            double text_pt_y = (angle <= 0) ? middle_pt_y + (text_gap) * Math.Cos(angle) : middle_pt_y - text_ht * 0.5 - text_gap * Math.Cos(angle);
 
             // Dimension leader 1.
             DrawingHelpers.DrawLine(c, x_dimleader1_ins, y_dimleader1_ins, x_dimleader1_end, y_dimleader1_end, Brushes.Green, 1, ltype);
@@ -633,7 +663,7 @@ namespace DrawingHelpersLibrary
             // Dimension text line.
             DrawingHelpers.DrawLine(c, x_dimtext1_ins, y_dimtext1_ins, x_dimtext1_end, y_dimtext1_end, Brushes.Green, 1, ltype);
 
-            DrawingHelpers.DrawText(c, text_pt_x, text_pt_y, 0, angle.ToString(), Brushes.Green, text_ht);
+            DrawingHelpers.DrawText(c, text_pt_x, text_pt_y, 0, text, Brushes.Green, text_ht);
         }
 
         /// <summary>
@@ -647,24 +677,24 @@ namespace DrawingHelpersLibrary
             double x2 = 200;
             double y2 = 50;
             DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Black, 1, Linetypes.LINETYPE_DASHED);
-            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1, y1, x2, y2, "TEST", 10);
+            DrawingHelpers.DrawDimensionAligned(canvas, x1, y1, x2, y2, "TEST", 15);
 
             DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Red, 1, Linetypes.LINETYPE_DASHED);
-            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x2 + 200, y2, x1 + 200, y1, "TEST", 10);
+            DrawingHelpers.DrawDimensionAligned(canvas, x2 + 200, y2, x1 + 200, y1, "TEST", 15);
 
             DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Blue, 1, Linetypes.LINETYPE_DASHED);
-            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1, y1 + 100, x2, y2 + 300, "TEST", 10);
+            DrawingHelpers.DrawDimensionAligned(canvas, x1, y1 + 100, x2, y2 + 300, "TEST", 15);
 
             DrawingHelpers.DrawLine(canvas, x1, y1, x2, y2, Brushes.Green, 1, Linetypes.LINETYPE_DASHED);
-            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x2 + 200, y2 + 300, x1 + 200, y1 + 100, "TEST", 10);
+            DrawingHelpers.DrawDimensionAligned(canvas, x2 + 200, y2 + 300, x1 + 200, y1 + 100, "TEST", 15);
 
             // Vertical points
             DrawingHelpers.DrawLine(canvas, x1 + 400, y1, x1 + 400, y2, Brushes.Green, 1, Linetypes.LINETYPE_DASHED);
-            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1 + 400, y1, x1 + 400, y2, "TEST", 10);
+            DrawingHelpers.DrawDimensionAligned(canvas, x1 + 400, y1, x1 + 400, y2, "TEST", 15);
 
             // Vertical points
             DrawingHelpers.DrawLine(canvas, x1 + 400, y1, x1 + 400, y2, Brushes.Green, 1, Linetypes.LINETYPE_DASHED);
-            DrawingHelpers.DrawDimensionAligned(canvas, 30, 0.3, 5, x1 + 600, y2, x1 + 600, y1, "TEST", 10);
+            DrawingHelpers.DrawDimensionAligned(canvas, x1 + 600, y2, x1 + 600, y1, "TEST", 15);
         }
 
 
