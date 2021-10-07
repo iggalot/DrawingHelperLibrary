@@ -772,10 +772,10 @@ namespace DrawingHelpersLibrary
             double y1 = ins_y;
             double x2 = end_x;
             double y2 = end_y;
-            double x3 = x2 + ht * Math.Cos(angle);
-            double y3 = y2 - ht * Math.Sin(angle);
-            double x4 = x1 + ht * Math.Cos(angle); ;
-            double y4 = y1 - ht * Math.Sin(angle);
+            double x3 = x2 - ht * Math.Sin(angle);
+            double y3 = y2 - ht * Math.Cos(angle);
+            double x4 = x1 - ht * Math.Sin(angle); ;
+            double y4 = y1 - ht * Math.Cos(angle);
             DrawingHelpers.DrawLine(c, x1, y1, x2, y2, stroke, thickness, ltype);
             DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
             DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
