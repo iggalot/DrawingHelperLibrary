@@ -568,8 +568,8 @@ namespace DrawingHelpersLibrary
         /// <param name="text_height"> height of the text</param>
         public static void DrawDimensionAligned(Canvas c, double ins_x, double ins_y, double end_x, double end_y, string text, double text_height)
         {
-            DrawDimensionAligned(c, ins_x, ins_y, end_x, end_y, text, text_height, 
-                DEFAULT_DIM_LEADER_HEIGHT, DEFAULT_DIM_LEADER_DROP_PERCENT, DEFAULT_DIM_LEADER_GAP, DEFAULT_DIM_LEADER_EXT, 
+            DrawDimensionAligned(c, ins_x, ins_y, end_x, end_y, text, text_height,
+                DEFAULT_DIM_LEADER_HEIGHT, DEFAULT_DIM_LEADER_DROP_PERCENT, DEFAULT_DIM_LEADER_GAP, DEFAULT_DIM_LEADER_EXT,
                 DEFAULT_DIM_LEADER_COLOR, DEFAULT_DIM_LINETYPE);
         }
 
@@ -588,8 +588,8 @@ namespace DrawingHelpersLibrary
         /// <param name="text">the text string to right at the middled of the dimension</param>
         /// <param name="text_ht">text height of the dimension object</param>
         /// <param name="ltype">linetype style to draw</param>
-        public static void DrawDimensionAligned(Canvas c, double ins_x, double ins_y, double end_x, double end_y, string text, double text_ht, 
-            double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double dim_leader_ext, 
+        public static void DrawDimensionAligned(Canvas c, double ins_x, double ins_y, double end_x, double end_y, string text, double text_ht,
+            double dim_leader_height, double dim_leader_drop_percent, double dim_leader_gap, double dim_leader_ext,
             Brush color, Linetypes ltype)
         {
             // If the points are the same, no need to draw a dimension
@@ -780,6 +780,180 @@ namespace DrawingHelpersLibrary
             DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
             DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
             DrawingHelpers.DrawLine(c, x4, y4, x1, y1, stroke, thickness, ltype);
+
+            DrawingHelpers.DrawCircle(c, x1, y1, Brushes.Blue, Brushes.Black, 10, 1);
+            DrawingHelpers.DrawCircle(c, x2, y2, Brushes.Red, Brushes.Black, 10, 1);
+        }
+
+        public static void DrawRectangleFilledAligned_Base(Canvas c, double ins_x, double ins_y, double end_x, double end_y, double ht, Brush stroke, Brush fill, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            // If the points are the same, no need to draw a dimension
+            if ((ins_x == end_x) && (ins_y == end_y))
+                return;
+
+            // standardize the points so point 1 is always left of point 2
+            double temp_x, temp_y;
+            if (ins_x > end_x)
+            {
+                temp_x = ins_x;
+                temp_y = ins_y;
+                ins_x = end_x;
+                ins_y = end_y;
+                end_x = temp_x;
+                end_y = temp_y;
+            }
+            // else if its a vertical dimension, make the bottom most point to be point 1
+            else if (ins_x == end_x)
+            {
+                if (ins_y > end_y)
+                {
+                    temp_x = ins_x;
+                    temp_y = ins_y;
+                    ins_x = end_x;
+                    ins_y = end_y;
+                    end_x = temp_x;
+                    end_y = temp_y;
+                }
+            }
+
+            double angle = Math.Atan((end_y - ins_y) / (end_x - ins_x));
+
+            double x1 = ins_x;
+            double y1 = ins_y;
+            double x2 = end_x;
+            double y2 = end_y;
+            double x3 = x2 + ht * Math.Sin(angle);
+            double y3 = y2 - ht * Math.Cos(angle);
+            double x4 = x1 + ht * Math.Sin(angle); ;
+            double y4 = y1 - ht * Math.Cos(angle);
+            DrawingHelpers.DrawLine(c, x1, y1, x2, y2, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x2, y2, x3, y3, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x3, y3, x4, y4, stroke, thickness, ltype);
+            DrawingHelpers.DrawLine(c, x4, y4, x1, y1, stroke, thickness, ltype);
+
+
+            //// Mark point 1 and 2 (testing)
+            //DrawingHelpers.DrawCircle(c, x1, y1, Brushes.Blue, Brushes.Black, 10, 1);
+            //DrawingHelpers.DrawCircle(c, x2, y2, Brushes.Red, Brushes.Black, 10, 1);
+
+            // Split the rectangle intwo two triangles and draw the fill for each
+            DrawTriangleFilled(c, x1, y1, x2, y2, x3, y3, stroke, fill);
+            DrawTriangleFilled(c, x1, y1, x3, y3, x4, y4, stroke, fill);
+
+        }
+
+        public static void DrawTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush stroke)
+        {
+            DrawLine(c, x1, y1, x2, y2, stroke);
+            DrawLine(c, x2, y2, x3, y3, stroke);
+            DrawLine(c, x1, y1, x3, y3, stroke);
+        }
+
+        public static void DrawTriangleFilled(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush stroke, Brush fill)
+        {
+
+            DrawLine(c, x1, y1, x2, y2, stroke);
+            DrawLine(c, x2, y2, x3, y3, stroke);
+            DrawLine(c, x1, y1, x3, y3, stroke);
+
+            double t1x, t2x, y, minx, maxx, t1xp, t2xp;
+            bool changed1 = false;
+            bool changed2 = false;
+            double signx1, signx2, dx1, dy1, dx2, dy2;
+            double e1, e2;
+
+            // sort the verticies
+            double tempx;
+            double tempy;
+
+
+            // y1 below y2
+            if (y1 > y2)
+            {
+                tempx = x1;
+                x1 = x2;
+                x2 = tempx;
+
+                tempy = y1;
+                y1 = y2;
+                y2 = tempy;
+            }
+
+            // new y1 below y3
+            if (y1 > y3)
+            {
+                tempx = x1;
+                x1 = x3;
+                x3 = tempx;
+
+                tempy = y1;
+                y1 = y3;
+                y3 = tempy;
+            }
+
+            // new y2 below new y3
+            if (y2 > y3)
+            {
+                tempx = x2;
+                x2 = x3;
+                x3 = tempx;
+
+                tempy = y2;
+                y2 = y3;
+                y3 = tempy;
+            }
+
+            // check for trivial case of bottom flat triangle
+            if(y2 == y3)
+            {
+                FillBottomFlatTriangle(c, x1, y1, x2, y2, x3, y3, fill);
+            } 
+            // check for tribial case of top flat triangle
+            else if (y1 == y2)
+            {
+                FillTopFlatTriangle(c, x1, y1, x2, y2, x3, y3, fill);
+            }
+            // general case -- split into a flat top and flat bottom cases
+            else
+            {
+                double x4 = (x1 + (y2 - y1) / (y3 - y1) * (x3 - x1));
+                double y4 = y2;
+                FillBottomFlatTriangle(c, x1, y1, x2, y2, x4, y4, fill);
+                FillTopFlatTriangle(c, x2, y2, x4, y4, x3, y3, fill);
+            }
+        }
+
+        private static void FillBottomFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill)
+        {
+            double invslope12 = (x2 - x1) / (y2 - y1);  // 1/m for line 1-2
+            double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-3
+
+            double curx1 = x1;
+            double curx2 = x1;
+
+            for (double i = y1; i <= y2; i++)
+            {
+               DrawLine(c, curx1, i, curx2, i, fill);
+                curx1 += invslope12;
+                curx2 += invslope13;
+            }
+        }
+
+        private static void FillTopFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill)
+        {
+            // Flat top triangle
+            double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-2
+            double invslope23 = (x3 - x2) / (y3 - y2);  // 1/m for line 1-3
+
+            double curx1 = x3;
+            double curx2 = x3;
+
+            for (double i = y3; i > y1; i--)
+            {
+                DrawLine(c, curx1, i, curx2, i, fill);
+                curx1 -= invslope13;
+                curx2 -= invslope23;
+            }
         }
     }
 }
