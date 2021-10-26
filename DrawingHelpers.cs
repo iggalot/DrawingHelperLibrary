@@ -1,6 +1,7 @@
 ﻿// TEST
 
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -144,6 +145,40 @@ namespace DrawingHelpersLibrary
             c.Children.Add(myLine);
 
             return myLine;
+        }
+
+        /// <summary>
+        /// Draws a gradient color line object.
+        /// </summary>
+        /// <param name="c">canvas to draw</param>
+        /// <param name="sx">x-coord of start point</param>
+        /// <param name="sy">y-coord of start point</param>
+        /// <param name="ex">x-coord of end point</param>
+        /// <param name="ey">y-coord of end point</param>
+        /// <param name="stroke1">brush color at start point</param>
+        /// <param name="stroke2">brush color at end point</param>
+        /// <param name="thickness">thickness of line</param>
+        /// <param name="ltype">linetype <see cref="Linetypes"/></param>
+        /// <returns></returns>
+        public static Shape DrawLine_ColorGradient(Canvas c, double sx, double sy, double ex, double ey, Brush stroke1, Brush stroke2, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
+        {
+            if(stroke1 != stroke2)
+            {
+                LinearGradientBrush gradientBrush = new LinearGradientBrush(((SolidColorBrush)stroke1).Color, ((SolidColorBrush)stroke2).Color, new Point(sx, sy), new Point(ex, ey));
+                gradientBrush.StartPoint = new Point(0.0, 0.0);
+                gradientBrush.EndPoint = new Point(1.0, 1.0);
+                gradientBrush.GradientStops.Add(new GradientStop(((SolidColorBrush)stroke1).Color, 0.0));
+                gradientBrush.GradientStops.Add(new GradientStop(((SolidColorBrush)stroke2).Color, 1.0));
+
+
+                return DrawLine(c, sx, sy, ex, ey, gradientBrush, thickness, ltype);
+            } else
+            {
+                return DrawLine(c, sx, sy, ex, ey, stroke1, thickness, ltype);
+            }
+
+
+            
         }
 
         /// <summary>
@@ -837,8 +872,8 @@ namespace DrawingHelpersLibrary
             //DrawingHelpers.DrawCircle(c, x2, y2, Brushes.Red, Brushes.Black, 10, 1);
 
             // Split the rectangle intwo two triangles and draw the fill for each
-            DrawTriangleFilled(c, x1, y1, x2, y2, x3, y3, stroke, fill);
-            DrawTriangleFilled(c, x1, y1, x3, y3, x4, y4, stroke, fill);
+            DrawTriangleFilled(c, x1, y1, x2, y2, x3, y3, stroke, fill, fill, fill);
+            DrawTriangleFilled(c, x1, y1, x3, y3, x4, y4, stroke, fill, fill, fill);
 
         }
 
@@ -849,14 +884,16 @@ namespace DrawingHelpersLibrary
             DrawLine(c, x1, y1, x3, y3, stroke);
         }
 
-        public static void DrawTriangleFilled(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush stroke, Brush fill)
+        public static void DrawTriangleFilled(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush stroke, Brush fill1, Brush fill2, Brush fill3)
         {
-
+            // Draw the boundary of the triangle
             DrawLine(c, x1, y1, x2, y2, stroke);
             DrawLine(c, x2, y2, x3, y3, stroke);
             DrawLine(c, x1, y1, x3, y3, stroke);
 
-
+            DrawingHelpers.DrawCircle(c, x1, y1, Brushes.Blue, Brushes.Black, 10, 1);
+            DrawingHelpers.DrawCircle(c, x2, y2, Brushes.Red, Brushes.Black, 10, 1);
+            DrawingHelpers.DrawCircle(c, x3, y3, Brushes.Green, Brushes.Black, 10, 1);
 
             // sort the verticies
             double tempx;
@@ -902,24 +939,46 @@ namespace DrawingHelpersLibrary
             // check for trivial case of bottom flat triangle
             if(y2 == y3)
             {
-                FillBottomFlatTriangle(c, x1, y1, x2, y2, x3, y3, fill);
+                FillBottomFlatTriangle(c, x1, y1, x2, y2, x3, y3, fill1, fill2, fill3);
             } 
             // check for tribial case of top flat triangle
             else if (y1 == y2)
             {
-                FillTopFlatTriangle(c, x1, y1, x2, y2, x3, y3, fill);
+                FillTopFlatTriangle(c, x1, y1, x2, y2, x3, y3, fill1, fill2, fill3);
             }
             // general case -- split into a flat top and flat bottom cases
             else
             {
                 double x4 = (x1 + (y2 - y1) / (y3 - y1) * (x3 - x1));
                 double y4 = y2;
-                FillBottomFlatTriangle(c, x1, y1, x2, y2, x4, y4, fill);
-                FillTopFlatTriangle(c, x2, y2, x4, y4, x3, y3, fill);
+
+                // interpolate the colors
+                byte r1 = ((SolidColorBrush)fill1).Color.R;
+                byte r2 = ((SolidColorBrush)fill2).Color.R;
+                byte r3 = ((SolidColorBrush)fill3).Color.R;
+                byte g1 = ((SolidColorBrush)fill1).Color.G;
+                byte g2 = ((SolidColorBrush)fill2).Color.G;
+                byte g3 = ((SolidColorBrush)fill3).Color.G;
+                byte b1 = ((SolidColorBrush)fill1).Color.B;
+                byte b2 = ((SolidColorBrush)fill2).Color.B;
+                byte b3 = ((SolidColorBrush)fill3).Color.B;
+                byte a1 = ((SolidColorBrush)fill1).Color.A;
+                byte a2 = ((SolidColorBrush)fill2).Color.A;
+                byte a3 = ((SolidColorBrush)fill3).Color.A;
+
+                byte c4_r = (byte)(r1 + (y2 - y1) / (y3 - y1) * (r3 - r1));
+                byte c4_g = (byte)(g1 + (y2 - y1) / (y3 - y1) * (g3 - r1));
+                byte c4_b = (byte)(b1 + (y2 - y1) / (y3 - y1) * (b3 - r1));
+                byte c4_a = (byte)(a1 + (y2 - y1) / (y3 - y1) * (a3 - r1));
+
+                SolidColorBrush fill4 = new SolidColorBrush(Color.FromArgb(c4_a, c4_r, c4_g, c4_b));
+               
+                FillBottomFlatTriangle(c, x1, y1, x2, y2, x4, y4, fill1, fill2, fill4);
+                FillTopFlatTriangle(c, x2, y2, x4, y4, x3, y3, fill2, fill4, fill3);
             }
         }
 
-        private static void FillBottomFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill)
+        private static void FillBottomFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill1, Brush fill2, Brush fill3)
         {
             double invslope12 = (x2 - x1) / (y2 - y1);  // 1/m for line 1-2
             double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-3
@@ -929,13 +988,45 @@ namespace DrawingHelpersLibrary
 
             for (double i = y1; i <= y2; i++)
             {
-               DrawLine(c, curx1, i, curx2, i, fill);
+                // interpolate the colors
+                byte r1 = ((SolidColorBrush)fill1).Color.R;
+                byte r2 = ((SolidColorBrush)fill2).Color.R;
+                byte r3 = ((SolidColorBrush)fill3).Color.R;
+
+                byte g1 = ((SolidColorBrush)fill1).Color.G;
+                byte g2 = ((SolidColorBrush)fill2).Color.G;
+                byte g3 = ((SolidColorBrush)fill3).Color.G;
+
+                byte b1 = ((SolidColorBrush)fill1).Color.B;
+                byte b2 = ((SolidColorBrush)fill2).Color.B;
+                byte b3 = ((SolidColorBrush)fill3).Color.B;
+
+                byte a1 = ((SolidColorBrush)fill1).Color.A;
+                byte a2 = ((SolidColorBrush)fill2).Color.A;
+                byte a3 = ((SolidColorBrush)fill3).Color.A;
+
+
+                byte c12_r = (byte)(r1 + (i - y1) / (y2 - y1) * (r2 - r1));
+                byte c12_g = (byte)(g1 + (i - y1) / (y2 - y1) * (g2 - r1));
+                byte c12_b = (byte)(b1 + (i - y1) / (y2 - y1) * (b2 - r1));
+                byte c12_a = (byte)(a1 + (i - y1) / (y2 - y1) * (a2 - r1));
+
+                byte c13_r = (byte)(r1 + (i - y1) / (y3 - y1) * (r3 - r1));
+                byte c13_g = (byte)(g1 + (i - y1) / (y3 - y1) * (g3 - r1));
+                byte c13_b = (byte)(b1 + (i - y1) / (y3 - y1) * (b3 - r1));
+                byte c13_a = (byte)(a1 + (i - y1) / (y3 - y1) * (a3 - r1));
+
+                SolidColorBrush color1 = new SolidColorBrush(Color.FromArgb(c12_a, c12_r, c12_g, c12_b));
+                SolidColorBrush color2 = new SolidColorBrush(Color.FromArgb(c13_a, c13_r, c13_g, c13_b));
+
+
+                DrawLine_ColorGradient(c, curx1, i, curx2, i, color1, color2);
                 curx1 += invslope12;
                 curx2 += invslope13;
             }
         }
 
-        private static void FillTopFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill)
+        private static void FillTopFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill1, Brush fill2, Brush fill3)
         {
             // Flat top triangle
             double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-2
@@ -946,7 +1037,38 @@ namespace DrawingHelpersLibrary
 
             for (double i = y3; i > y1; i--)
             {
-                DrawLine(c, curx1, i, curx2, i, fill);
+                // interpolate the colors
+                byte r1 = ((SolidColorBrush)fill1).Color.R;
+                byte r2 = ((SolidColorBrush)fill2).Color.R;
+                byte r3 = ((SolidColorBrush)fill3).Color.R;
+
+                byte g1 = ((SolidColorBrush)fill1).Color.G;
+                byte g2 = ((SolidColorBrush)fill2).Color.G;
+                byte g3 = ((SolidColorBrush)fill3).Color.G;
+
+                byte b1 = ((SolidColorBrush)fill1).Color.B;
+                byte b2 = ((SolidColorBrush)fill2).Color.B;
+                byte b3 = ((SolidColorBrush)fill3).Color.B;
+
+                byte a1 = ((SolidColorBrush)fill1).Color.A;
+                byte a2 = ((SolidColorBrush)fill2).Color.A;
+                byte a3 = ((SolidColorBrush)fill3).Color.A;
+
+
+                byte c13_r = (byte)(r1 + (i - y1) / (y3 - y1) * (r3 - r1));
+                byte c13_g = (byte)(g1 + (i - y1) / (y3 - y1) * (g3 - r1));
+                byte c13_b = (byte)(b1 + (i - y1) / (y3 - y1) * (b3 - r1));
+                byte c13_a = (byte)(a1 + (i - y1) / (y3 - y1) * (a3 - r1));
+
+                byte c23_r = (byte)(r2 + (i - y2) / (y3 - y2) * (r3 - r2));
+                byte c23_g = (byte)(g2 + (i - y2) / (y3 - y2) * (g3 - r2));
+                byte c23_b = (byte)(b2 + (i - y2) / (y3 - y2) * (b3 - r2));
+                byte c23_a = (byte)(a2 + (i - y2) / (y3 - y2) * (a3 - r2));
+
+                SolidColorBrush color1 = new SolidColorBrush(Color.FromArgb(c13_a, c13_r, c13_g, c13_b));
+                SolidColorBrush color2 = new SolidColorBrush(Color.FromArgb(c23_a, c23_r, c23_g, c23_b));
+
+                DrawLine_ColorGradient(c, curx1, i, curx2, i, color1, color2);
                 curx1 -= invslope13;
                 curx2 -= invslope23;
             }
