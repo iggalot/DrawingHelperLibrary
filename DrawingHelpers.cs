@@ -856,11 +856,7 @@ namespace DrawingHelpersLibrary
             DrawLine(c, x2, y2, x3, y3, stroke);
             DrawLine(c, x1, y1, x3, y3, stroke);
 
-            double t1x, t2x, y, minx, maxx, t1xp, t2xp;
-            bool changed1 = false;
-            bool changed2 = false;
-            double signx1, signx2, dx1, dy1, dx2, dy2;
-            double e1, e2;
+
 
             // sort the verticies
             double tempx;
