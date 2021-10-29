@@ -1147,23 +1147,6 @@ namespace DrawingHelpersLibrary
             double invslope12 = (x2 - x1) / (y2 - y1);  // 1/m for line 1-2
             double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-3
 
-            // read the r,g,b,a color values for the node points
-            float r1 = ((SolidColorBrush)fill1).Color.R;
-            float r2 = ((SolidColorBrush)fill2).Color.R;
-            float r3 = ((SolidColorBrush)fill3).Color.R;
-
-            float g1 = ((SolidColorBrush)fill1).Color.G;
-            float g2 = ((SolidColorBrush)fill2).Color.G;
-            float g3 = ((SolidColorBrush)fill3).Color.G;
-
-            float b1 = ((SolidColorBrush)fill1).Color.B;
-            float b2 = ((SolidColorBrush)fill2).Color.B;
-            float b3 = ((SolidColorBrush)fill3).Color.B;
-
-            float a1 = ((SolidColorBrush)fill1).Color.A;
-            float a2 = ((SolidColorBrush)fill2).Color.A;
-            float a3 = ((SolidColorBrush)fill3).Color.A;
-
             for (int i = 0; i < Math.Round(y3 - y1); i++)
             {
                 // new x-coord for point on line 1-2
@@ -1176,19 +1159,7 @@ namespace DrawingHelpersLibrary
                 // percent along L of the new point
                 float p1 = dL12 / L_tot_12;
 
-                SolidColorBrush color1;
-                if (fill2 != fill1)
-                {
-                    float c12_r = (float)Math.Round(r2 - p1 * (r2 - r1));
-                    float c12_g = (float)Math.Round(g2 - p1 * (g2 - g1));
-                    float c12_b = (float)Math.Round(b2 - p1 * (b2 - b1));
-                    float c12_a = (float)Math.Round(a2 - p1 * (a2 - a1));
-
-                    color1 = new SolidColorBrush(Color.FromArgb((byte)c12_a, (byte)c12_r, (byte)c12_g, (byte)c12_b));
-                } else
-                {
-                    color1 = (SolidColorBrush)fill1;
-                }
+                SolidColorBrush color1 = InterpolateColors(p1, fill1, fill2);
 
                 // new x-coord for point on line 1-3
                 float x13 = (float)(x3 - invslope13 * i);
@@ -1197,23 +1168,10 @@ namespace DrawingHelpersLibrary
                 // line distance from new point to x3
                 float dL13 = (float)(Math.Sqrt((x3 - x13) * (x3 - x13) + i * i));
 
-                // percent along L of the new point
+                // percent along L of the new point measured from 3
                 float p2 = dL13 / L_tot_13;
 
-                SolidColorBrush color2;
-                if (fill3 != fill1)
-                {
-                    float c13_r = (float)Math.Round(r3 - p2 * (r3 - r1));
-                    float c13_g = (float)Math.Round(g3 - p2 * (g3 - g1));
-                    float c13_b = (float)Math.Round(b3 - p2 * (b3 - b1));
-                    float c13_a = (float)Math.Round(a3 - p2 * (a3 - a1));
-
-                    color2 = new SolidColorBrush(Color.FromArgb((byte)c13_a, (byte)c13_r, (byte)c13_g, (byte)c13_b));
-                }
-                else
-                {
-                    color2 = (SolidColorBrush)fill1;
-                }
+                SolidColorBrush color2 = InterpolateColors(p2, fill1, fill3);
 
                 // Draw the horizontal line between the two interpolated points
                 DrawLine_ColorGradient(c, x12, y12, x13, y13, color1, color2);
@@ -1250,23 +1208,6 @@ namespace DrawingHelpersLibrary
             double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-2
             double invslope23 = (x3 - x2) / (y3 - y2);  // 1/m for line 1-3
 
-            // read the r,g,b,a color values for the node points
-            float r1 = ((SolidColorBrush)fill1).Color.R;
-            float r2 = ((SolidColorBrush)fill2).Color.R;
-            float r3 = ((SolidColorBrush)fill3).Color.R;
-
-            float g1 = ((SolidColorBrush)fill1).Color.G;
-            float g2 = ((SolidColorBrush)fill2).Color.G;
-            float g3 = ((SolidColorBrush)fill3).Color.G;
-
-            float b1 = ((SolidColorBrush)fill1).Color.B;
-            float b2 = ((SolidColorBrush)fill2).Color.B;
-            float b3 = ((SolidColorBrush)fill3).Color.B;
-
-            float a1 = ((SolidColorBrush)fill1).Color.A;
-            float a2 = ((SolidColorBrush)fill2).Color.A;
-            float a3 = ((SolidColorBrush)fill3).Color.A;
-
             for (int i = 0; i < Math.Round(y3-y1); i++)
             {
                 // new x-coord for point on line 1-3
@@ -1279,20 +1220,7 @@ namespace DrawingHelpersLibrary
                 // percent along L of the new point
                 float p1 = dL13 / L_tot_13;
 
-                SolidColorBrush color1;
-                if (fill3 != fill1)
-                {
-                    float c13_r = (float)Math.Round(r3 - p1 * (r3 - r1));
-                    float c13_g = (float)Math.Round(g3 - p1 * (g3 - g1));
-                    float c13_b = (float)Math.Round(b3 - p1 * (b3 - b1));
-                    float c13_a = (float)Math.Round(a3 - p1 * (a3 - a1));
-
-                    color1 = new SolidColorBrush(Color.FromArgb((byte)c13_a, (byte)c13_r, (byte)c13_g, (byte)c13_b));
-                }
-                else
-                {
-                    color1 = (SolidColorBrush)fill1;
-                }
+                SolidColorBrush color1 = InterpolateColors(p1, fill1, fill3);
 
                 // new x-coord for point on line 2-3
                 float x23 = (float)(x3 - invslope23 * i);
@@ -1301,27 +1229,54 @@ namespace DrawingHelpersLibrary
                 // line distance from new point to x3
                 float dL23 = (float)(Math.Sqrt((x3 - x23) * (x3 - x23) + i * i));
 
-                // percent along L of the new point
+                // percent along L of the new point measured from x3
                 float p2 = dL23 / L_tot_23;
 
-                SolidColorBrush color2;
-                if (fill2 != fill1)
-                {
-                    float c23_r = (float)Math.Round(r3 - p2 * (r3 - r2));
-                    float c23_g = (float)Math.Round(g3 - p2 * (g3 - g2));
-                    float c23_b = (float)Math.Round(b3 - p2 * (b3 - b2));
-                    float c23_a = (float)Math.Round(a3 - p2 * (a3 - a2));
-
-                    color2 = new SolidColorBrush(Color.FromArgb((byte)c23_a, (byte)c23_r, (byte)c23_g, (byte)c23_b));
-                }
-                else
-                {
-                    color2 = (SolidColorBrush)fill1;
-                }
+                SolidColorBrush color2 = InterpolateColors(p2, fill2, fill3);
 
                 // Draw the horizontal line
                 DrawLine_ColorGradient(c, x13, y13, x23, y23, color1, color2);
             }
+        }
+
+        /// <summary>
+        /// Interpolates colors based on a percentile where fill2 location is 0% and fill1 location is 100%
+        /// </summary>
+        /// <param name="p">percentile measured from 2nd point</param>
+        /// <param name="fill1">1st point color</param>
+        /// <param name="fill2">2nd point color</param>
+        /// <returns></returns>
+
+        public static SolidColorBrush InterpolateColors(float p, Brush fill1, Brush fill2)
+        {
+            SolidColorBrush col;
+
+            if (fill2 != fill1)
+            {
+                // RGBA colors for our two vertices
+                float r1 = ((SolidColorBrush)fill1).Color.R;
+                float r2 = ((SolidColorBrush)fill2).Color.R;
+                float g1 = ((SolidColorBrush)fill1).Color.G;
+                float g2 = ((SolidColorBrush)fill2).Color.G;
+                float b1 = ((SolidColorBrush)fill1).Color.B;
+                float b2 = ((SolidColorBrush)fill2).Color.B;
+                float a1 = ((SolidColorBrush)fill1).Color.A;
+                float a2 = ((SolidColorBrush)fill2).Color.A;
+
+                // Interpolate the colors
+                float c23_r = (float)Math.Round(r2 - p * (r2 - r1));
+                float c23_g = (float)Math.Round(g2 - p * (g2 - g1));
+                float c23_b = (float)Math.Round(b2 - p * (b2 - b1));
+                float c23_a = (float)Math.Round(a2 - p * (a2 - a1));
+
+                col = new SolidColorBrush(Color.FromArgb((byte)c23_a, (byte)c23_r, (byte)c23_g, (byte)c23_b));
+            }
+            else
+            {
+                col = (SolidColorBrush)fill1;
+            }
+
+            return col;
         }
     }
 }
