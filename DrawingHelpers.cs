@@ -820,6 +820,29 @@ namespace DrawingHelpersLibrary
             DrawingHelpers.DrawCircle(c, x2, y2, Brushes.Red, Brushes.Black, 10, 1);
         }
 
+        /// <summary>
+        /// Draws single-color filled rectangle with an aligned base have nodes on bottom of (ins_x, ins_y)
+        /// and (end_x, end_y) with specified height. Breaks the rectangle into two triangles (A) and (B)
+        /// 
+        /// 
+        ///                4 -------- 3
+        ///                |        / |
+        ///                |  B    /  |
+        ///                |      /   |
+        ///                |     /  A |
+        ///                |    /     |
+        ///                ins -------end
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="ins_x">x-coord of node 1</param>
+        /// <param name="ins_y">y-coord of node 1</param>
+        /// <param name="end_x">x-coord of node 2</param>
+        /// <param name="end_y">y-coord of node 2</param>
+        /// <param name="ht">height of the rectangl </param>
+        /// <param name="stroke">color of the rectangles border</param>
+        /// <param name="fill">fill color of the rectangle</param>
+        /// <param name="thickness">thickness of the rectangle border</param>
+        /// <param name="ltype">linetype of the rectangle border <see cref="Linetypes"/></param>
         public static void DrawRectangleFilledAligned_Base(Canvas c, double ins_x, double ins_y, double end_x, double end_y, double ht, Brush stroke, Brush fill, double thickness = 1.0, Linetypes ltype = Linetypes.LINETYPE_SOLID)
         {
             // If the points are the same, no need to draw a dimension
@@ -877,6 +900,17 @@ namespace DrawingHelpersLibrary
 
         }
 
+        /// <summary>
+        /// Draws a wire frame triangle of a specified color
+        /// </summary>
+        /// <param name="c">canvas object</param>
+        /// <param name="x1">x coord of node 1</param>
+        /// <param name="y1">y coord of node 1</param>
+        /// <param name="x2">x coord of node 2</param>
+        /// <param name="y2">y coord of node 2</param>
+        /// <param name="x3">x coord of node 3</param>
+        /// <param name="y3">y coord of node 3</param>
+        /// <param name="stroke">color of the triangle to draw</param>
         public static void DrawTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush stroke)
         {
             DrawLine(c, x1, y1, x2, y2, stroke);
@@ -884,19 +918,37 @@ namespace DrawingHelpersLibrary
             DrawLine(c, x1, y1, x3, y3, stroke);
         }
 
+        /// <summary>
+        /// Main algorithm for drawing a triangle filled with color.  Can handle obtuse and accute triangles.  
+        /// Sorts nodes and interpolates vertex colors.
+        /// Arranges nodes to be of an order 1-2-3 and then interpolates point 4 as a horizontal position from point 2.
+        /// 
+        ///                      1
+        ///                     / \
+        ///                    / A \
+        ///                   2 --- 4
+        ///                   \_     \
+        ///                     \_ B  \
+        ///                       \_   \
+        ///                         \_  \
+        ///                           \_ 3
+        ///                           
+        /// Algorithm then defers rastering to routines for drawing an upper flat bottom triangle (A) and a lower flat top triangle (B).
+        /// </summary>
+        /// <param name="c">canvas object</param>
+        /// <param name="x1">x coord of node 1</param>
+        /// <param name="y1">y coord of node 1</param>
+        /// <param name="x2">x coord of node 2</param>
+        /// <param name="y2">y coord of node 2</param>
+        /// <param name="x3">x coord of node 3</param>
+        /// <param name="y3">y coord of node 3</param>
+        /// <param name="fill1">color for node 1 </param>
+        /// <param name="fill2">color for node 2</param>
+        /// <param name="fill3">color for node 3</param>
+        /// <param name="stroke">color of the triangle to draw -- currently unused</param>
+
         public static void DrawTriangleFilled(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush stroke, Brush fill1, Brush fill2, Brush fill3)
         {
-
-
-            DrawText(c, x1 + 20, y1 - 40, 0, "1 - " + fill1.ToString(), fill1, 15);
-            DrawText(c, x2 + 20, y2 - 40, 0, "2 = " + fill2.ToString(), fill2, 15);
-            DrawText(c, x3 + 20, y3 - 40, 0, "3 = " + fill3.ToString(), fill3, 15);
-
-
-            DrawingHelpers.DrawCircle(c, x1, y1, Brushes.Blue, Brushes.Black, 10, 1);
-            DrawingHelpers.DrawCircle(c, x2, y2, Brushes.Red, Brushes.Black, 10, 1);
-            DrawingHelpers.DrawCircle(c, x3, y3, Brushes.Green, Brushes.Black, 10, 1);
-
             // sort the verticies
             double tempx;
             double tempy;
@@ -1023,13 +1075,6 @@ namespace DrawingHelpersLibrary
                 fill3 = tempFill;
             }
 
-
-
-            DrawingHelpers.DrawCircle(c, x1, y1, fill1, fill1, 10, 1);
-            DrawingHelpers.DrawCircle(c, x2, y2, fill2, fill2, 10, 1);
-            DrawingHelpers.DrawCircle(c, x3, y3, fill3, fill3, 10, 1);
-
-
             // check for trivial case of bottom flat triangle
             if (y2 == y3)
             {
@@ -1068,66 +1113,33 @@ namespace DrawingHelpersLibrary
 
                 SolidColorBrush fill4 = new SolidColorBrush(Color.FromArgb(c4_a, c4_r, c4_g, c4_b));
                 
-                //SolidColorBrush fill4 = fill1;
-
                 // This one changed
                 FillBottomFlatTriangle(c, x1, y1, x2, y2, x4, y4, fill1, fill2, fill4);
                 FillTopFlatTriangle(c, x2, y2, x4, y4, x3, y3, fill2, fill4, fill3);
             }
-
-            DrawText(c, x1 + 20, y1 - 20, 0, "1 - " + fill1.ToString(), fill1, 15);
-            DrawText(c, x2 + 20, y2 - 20, 0, "2 = " + fill2.ToString(), fill2, 15);
-            DrawText(c, x3 + 20, y3 - 20, 0, "3 = " + fill3.ToString(), fill3, 15);
-
         }
 
+        /// <summary>
+        /// Draws a flat-bottomed filled triangle using interpolated colors for 
+        /// triangle having node orientation. Logic checks the input nodes and 
+        /// sorts to make this arrangement for the algorithm.
+        ///                   1
+        ///                 /   \
+        ///                /     \
+        ///               2 ----- 3
+        /// </summary>
+        /// <param name="c">canvas object</param>
+        /// <param name="x1">x coord of node 1</param>
+        /// <param name="y1">y coord of node 1</param>
+        /// <param name="x2">x coord of node 2</param>
+        /// <param name="y2">y coord of node 2</param>
+        /// <param name="x3">x coord of node 3</param>
+        /// <param name="y3">y coord of node 3</param>
+        /// <param name="fill1">color for node 1 </param>
+        /// <param name="fill2">color for node 2</param>
+        /// <param name="fill3">color for node 3</param>
         private static void FillBottomFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill1, Brush fill2, Brush fill3)
         {
-            //double invslope12 = (x2 - x1) / (y2 - y1);  // 1/m for line 1-2
-            //double invslope13 = (x3 - x1) / (y3 - y1);  // 1/m for line 1-3
-
-            //double curx1 = x1;
-            //double curx2 = x1;
-
-            //for (double i = y1; i <= y2; i++)
-            //{
-            //    // interpolate the colors
-            //    byte r1 = ((SolidColorBrush)fill1).Color.R;
-            //    byte r2 = ((SolidColorBrush)fill2).Color.R;
-            //    byte r3 = ((SolidColorBrush)fill3).Color.R;
-
-            //    byte g1 = ((SolidColorBrush)fill1).Color.G;
-            //    byte g2 = ((SolidColorBrush)fill2).Color.G;
-            //    byte g3 = ((SolidColorBrush)fill3).Color.G;
-
-            //    byte b1 = ((SolidColorBrush)fill1).Color.B;
-            //    byte b2 = ((SolidColorBrush)fill2).Color.B;
-            //    byte b3 = ((SolidColorBrush)fill3).Color.B;
-
-            //    byte a1 = ((SolidColorBrush)fill1).Color.A;
-            //    byte a2 = ((SolidColorBrush)fill2).Color.A;
-            //    byte a3 = ((SolidColorBrush)fill3).Color.A;
-
-
-            //    byte c12_r = (byte)(r1 + (i - y1) / (y2 - y1) * (r2 - r1));
-            //    byte c12_g = (byte)(g1 + (i - y1) / (y2 - y1) * (g2 - r1));
-            //    byte c12_b = (byte)(b1 + (i - y1) / (y2 - y1) * (b2 - r1));
-            //    byte c12_a = (byte)(a1 + (i - y1) / (y2 - y1) * (a2 - r1));
-
-            //    byte c13_r = (byte)(r1 + (i - y1) / (y3 - y1) * (r3 - r1));
-            //    byte c13_g = (byte)(g1 + (i - y1) / (y3 - y1) * (g3 - r1));
-            //    byte c13_b = (byte)(b1 + (i - y1) / (y3 - y1) * (b3 - r1));
-            //    byte c13_a = (byte)(a1 + (i - y1) / (y3 - y1) * (a3 - r1));
-
-            //    SolidColorBrush color1 = new SolidColorBrush(Color.FromArgb(c12_a, c12_r, c12_g, c12_b));
-            //    SolidColorBrush color2 = new SolidColorBrush(Color.FromArgb(c13_a, c13_r, c13_g, c13_b));
-
-
-            //    DrawLine_ColorGradient(c, curx1, i, curx2, i, color1, color2);
-            //    curx1 += invslope12;
-            //    curx2 += invslope13;
-            //}
-
             float L_tot_12 = (float)Math.Round(Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
             float L_tot_13 = (float)Math.Round(Math.Sqrt((x3 - x1) * (x3 - x1) + (y3 - y1) * (y3 - y1)));
 
@@ -1154,24 +1166,31 @@ namespace DrawingHelpersLibrary
 
             for (int i = 0; i < Math.Round(y3 - y1); i++)
             {
-                // new x-coord for point on line 1-3
-                float x12 = (float)(x2 - invslope13 * i);
+                // new x-coord for point on line 1-2
+                float x12 = (float)(x2 - invslope12 * i);
                 float y12 = (float)(y2 - i);
 
                 // line distance from new point to x3
-                float dL12 = (float)(Math.Sqrt((x3 - x12) * (x3 - x12) + i * i));
+                float dL12 = (float)(Math.Sqrt((x2 - x12) * (x2 - x12) + i * i));
 
                 // percent along L of the new point
                 float p1 = dL12 / L_tot_12;
 
-                float c12_r = (float)Math.Round(r2 - p1 * (r2 - r1));
-                float c12_g = (float)Math.Round(g2 - p1 * (g2 - g1));
-                float c12_b = (float)Math.Round(b2 - p1 * (b2 - b1));
-                float c12_a = (float)Math.Round(a2 - p1 * (a2 - a1));
+                SolidColorBrush color1;
+                if (fill2 != fill1)
+                {
+                    float c12_r = (float)Math.Round(r2 - p1 * (r2 - r1));
+                    float c12_g = (float)Math.Round(g2 - p1 * (g2 - g1));
+                    float c12_b = (float)Math.Round(b2 - p1 * (b2 - b1));
+                    float c12_a = (float)Math.Round(a2 - p1 * (a2 - a1));
 
-                SolidColorBrush color1 = new SolidColorBrush(Color.FromArgb((byte)c12_a, (byte)c12_r, (byte)c12_g, (byte)c12_b));
+                    color1 = new SolidColorBrush(Color.FromArgb((byte)c12_a, (byte)c12_r, (byte)c12_g, (byte)c12_b));
+                } else
+                {
+                    color1 = (SolidColorBrush)fill1;
+                }
 
-                // new x-coord for point on line 2-3
+                // new x-coord for point on line 1-3
                 float x13 = (float)(x3 - invslope13 * i);
                 float y13 = (float)(y3 - i);
 
@@ -1181,25 +1200,47 @@ namespace DrawingHelpersLibrary
                 // percent along L of the new point
                 float p2 = dL13 / L_tot_13;
 
-                float c13_r = (float)Math.Round(r3 - p2 * (r3 - r1));
-                float c13_g = (float)Math.Round(g3 - p2 * (g3 - g1));
-                float c13_b = (float)Math.Round(b3 - p2 * (b3 - b1));
-                float c13_a = (float)Math.Round(a3 - p2 * (a3 - a1));
+                SolidColorBrush color2;
+                if (fill3 != fill1)
+                {
+                    float c13_r = (float)Math.Round(r3 - p2 * (r3 - r1));
+                    float c13_g = (float)Math.Round(g3 - p2 * (g3 - g1));
+                    float c13_b = (float)Math.Round(b3 - p2 * (b3 - b1));
+                    float c13_a = (float)Math.Round(a3 - p2 * (a3 - a1));
 
-                SolidColorBrush color2 = new SolidColorBrush(Color.FromArgb((byte)c13_a, (byte)c13_r, (byte)c13_g, (byte)c13_b));
+                    color2 = new SolidColorBrush(Color.FromArgb((byte)c13_a, (byte)c13_r, (byte)c13_g, (byte)c13_b));
+                }
+                else
+                {
+                    color2 = (SolidColorBrush)fill1;
+                }
 
-                // Draw the horizontal line
+                // Draw the horizontal line between the two interpolated points
                 DrawLine_ColorGradient(c, x12, y12, x13, y13, color1, color2);
             }
-
-            // Draw the boundary of the triangle
-            DrawLine_ColorGradient(c, x1, y1, x2, y2, fill1, fill2);
-            DrawLine_ColorGradient(c, x2, y2, x3, y3, fill2, fill3);
-            DrawLine_ColorGradient(c, x1, y1, x3, y3, fill1, fill3);
-
-
         }
 
+
+        /// <summary>
+        /// Draws a flat top filled triangle using interpolated colors for 
+        /// triangle having node orientation. Logic checks the input nodes and 
+        /// sorts to make this arrangement for the algorithm.
+        ///               1 ------- 2
+        ///                \       /
+        ///                 \     /
+        ///                  \   /
+        ///                    3
+        /// </summary>
+        /// <param name="c">canvas object</param>
+        /// <param name="x1">x coord of node 1</param>
+        /// <param name="y1">y coord of node 1</param>
+        /// <param name="x2">x coord of node 2</param>
+        /// <param name="y2">y coord of node 2</param>
+        /// <param name="x3">x coord of node 3</param>
+        /// <param name="y3">y coord of node 3</param>
+        /// <param name="fill1">color for node 1 </param>
+        /// <param name="fill2">color for node 2</param>
+        /// <param name="fill3">color for node 3</param>
         private static void FillTopFlatTriangle(Canvas c, double x1, double y1, double x2, double y2, double x3, double y3, Brush fill1, Brush fill2, Brush fill3)
         {
             float L_tot_13 = (float)Math.Round(Math.Sqrt((x3 - x1) * (x3 - x1) + (y3 - y1) * (y3 - y1)));
@@ -1238,12 +1279,20 @@ namespace DrawingHelpersLibrary
                 // percent along L of the new point
                 float p1 = dL13 / L_tot_13;
 
-                float c13_r = (float)Math.Round(r3 - p1 * (r3 - r1));
-                float c13_g = (float)Math.Round(g3 - p1 * (g3 - g1));
-                float c13_b = (float)Math.Round(b3 - p1 * (b3 - b1));
-                float c13_a = (float)Math.Round(a3 - p1 * (a3 - a1));
+                SolidColorBrush color1;
+                if (fill3 != fill1)
+                {
+                    float c13_r = (float)Math.Round(r3 - p1 * (r3 - r1));
+                    float c13_g = (float)Math.Round(g3 - p1 * (g3 - g1));
+                    float c13_b = (float)Math.Round(b3 - p1 * (b3 - b1));
+                    float c13_a = (float)Math.Round(a3 - p1 * (a3 - a1));
 
-                SolidColorBrush color1 = new SolidColorBrush(Color.FromArgb((byte)c13_a, (byte)c13_r, (byte)c13_g, (byte)c13_b));
+                    color1 = new SolidColorBrush(Color.FromArgb((byte)c13_a, (byte)c13_r, (byte)c13_g, (byte)c13_b));
+                }
+                else
+                {
+                    color1 = (SolidColorBrush)fill1;
+                }
 
                 // new x-coord for point on line 2-3
                 float x23 = (float)(x3 - invslope23 * i);
@@ -1255,21 +1304,24 @@ namespace DrawingHelpersLibrary
                 // percent along L of the new point
                 float p2 = dL23 / L_tot_23;
 
-                float c23_r = (float)Math.Round(r3 - p2 * (r3 - r2));
-                float c23_g = (float)Math.Round(g3 - p2 * (g3 - g2));
-                float c23_b = (float)Math.Round(b3 - p2 * (b3 - b2));
-                float c23_a = (float)Math.Round(a3 - p2 * (a3 - a2));
+                SolidColorBrush color2;
+                if (fill2 != fill1)
+                {
+                    float c23_r = (float)Math.Round(r3 - p2 * (r3 - r2));
+                    float c23_g = (float)Math.Round(g3 - p2 * (g3 - g2));
+                    float c23_b = (float)Math.Round(b3 - p2 * (b3 - b2));
+                    float c23_a = (float)Math.Round(a3 - p2 * (a3 - a2));
 
-                SolidColorBrush color2 = new SolidColorBrush(Color.FromArgb((byte)c23_a, (byte)c23_r, (byte)c23_g, (byte)c23_b));
+                    color2 = new SolidColorBrush(Color.FromArgb((byte)c23_a, (byte)c23_r, (byte)c23_g, (byte)c23_b));
+                }
+                else
+                {
+                    color2 = (SolidColorBrush)fill1;
+                }
 
                 // Draw the horizontal line
                 DrawLine_ColorGradient(c, x13, y13, x23, y23, color1, color2);
             }
-
-            // Draw the boundary of the triangle
-            DrawLine_ColorGradient(c, x1, y1, x2, y2, fill1, fill2);
-            DrawLine_ColorGradient(c, x2, y2, x3, y3, fill2, fill3);
-            DrawLine_ColorGradient(c, x1, y1, x3, y3, fill1, fill3);
         }
     }
 }
