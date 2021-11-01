@@ -1278,5 +1278,17 @@ namespace DrawingHelpersLibrary
             return col;
         }
 
+        /// <summary>
+        ///  Colors a single pixel.  Very expensive resourcewise so use sparingly.
+        /// </summary>
+        /// <param name="c">the canvas to draw on</param>
+        /// <param name="x">x coord of pixel</param>
+        /// <param name="y">y coord of pixel</param>
+        /// <param name="fill1">color of the pixel</param>
+        public static void DrawPixel(Canvas c, float x, float y, Brush fill1)
+        {
+            DrawLine(c, x, y, x + 1, y, fill1);
+        }
+
     }
 }
