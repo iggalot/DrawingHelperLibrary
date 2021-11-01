@@ -1246,7 +1246,6 @@ namespace DrawingHelpersLibrary
         /// <param name="fill1">1st point color</param>
         /// <param name="fill2">2nd point color</param>
         /// <returns></returns>
-
         public static SolidColorBrush InterpolateColors(float p, Brush fill1, Brush fill2)
         {
             SolidColorBrush col;
@@ -1278,5 +1277,6 @@ namespace DrawingHelpersLibrary
 
             return col;
         }
+
     }
 }
